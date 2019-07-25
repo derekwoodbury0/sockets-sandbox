@@ -27,7 +27,7 @@ class Dashboard extends Component {
                         name: room[0],
                         sockets: room[1].length
                     }
-                    roomArray.push(roomObject)
+                    return roomArray.push(roomObject)
                 })
                 this.setState ({ rooms: roomArray })
 
@@ -41,11 +41,36 @@ class Dashboard extends Component {
         this.setState ({ gameNameInput: e.target.value })
     }
 
+    checkGame = () => {
+        let { gameNameInput } = this.state
+        if (gameNameInput) {
+
+        } else {
+            alert('please enter game name.')
+        }
+    }
+
     startGame = async() => {
         let {gameNameInput} = this.state
-        this.props.setGameRoom({room: gameNameInput, player: 'player1'})
-        this.props.history.push('/player')
-        socket.emit('createRoom', {room: gameNameInput})
+        if (gameNameInput) {
+            if (this.state.rooms) {
+                this.state.rooms.map(room => {
+                    if (room.name === gameNameInput) {
+                       alert ('game name already exists. Please enter different name for your game.')
+                    } else {
+                        this.props.setGameRoom({room: gameNameInput, player: 'player1'})
+                        this.props.history.push('/player')
+                        socket.emit('createRoom', {room: gameNameInput})
+                    }
+                })
+            } else {
+                this.props.setGameRoom({room: gameNameInput, player: 'player1'})
+                this.props.history.push('/player')
+                socket.emit('createRoom', {room: gameNameInput})
+            }
+        } else {
+            alert('please enter game name')
+        }
     }
 
     joinGame = (room) => {

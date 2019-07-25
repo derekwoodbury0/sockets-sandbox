@@ -9,7 +9,8 @@ class Player extends Component {
         this.state = {
             player1Map: '',
             player2Map: '',
-            currentTurn: 'player1'
+            currentTurn: 'player1',
+            spotSelected: ''
         }
     }
 
@@ -26,6 +27,7 @@ class Player extends Component {
         })
 
         socket.on('turnsChanged', data => {
+            console.log(data)
             this.setState ({ currentTurn: data })
         })
 
@@ -40,20 +42,40 @@ class Player extends Component {
     }
 
     initializePlayer2 = async() => {
-        await this.setState ({ player2Map: [[18,19],[20,21,21],[22,23,24],[25,26,27,28],[29,30,31,32,33]] })
+        await this.setState ({ player2Map: [[18,19],[20,21,22],[23,24,25],[26,27,28,29],[30,31,32,33,34]] })
         let { player2Map } = this.state
         let { room } = this.props
         socket.emit('joinGame', {player2Map, room})
     }
 
+    handleChange = e => {
+        this.setState ({ spotSelected: e.target.value})
+    }
+
     makeMove = async() => {
+        let { player1Map, player2Map, spotSelected } = this.state
         if (this.state.currentTurn === 'player1') {
+
+            player2Map.map(ship => {
+                ship.map((position) => {
+                    if (position === +spotSelected ) {
+                        console.log('hit!')
+                    } 
+                })
+            })
             await this.setState ({ currentTurn: 'player2'})
         } else {
+            player1Map.map(ship => {
+                ship.map(position => {
+                    if (position === +spotSelected ) {
+                        console.log('Hit!')
+                    }
+                })
+            })
             await this.setState ({ currentTurn: 'player1'})
         }
-        let { currentTurn } = this.state
         let { room } = this.props
+        let { currentTurn } = this.state
         socket.emit('changeTurns', {currentTurn, room})
     }
 
@@ -64,11 +86,17 @@ class Player extends Component {
     }
 
     render() {
-        console.log(this.props)
+        console.log(this.state)
         return (
             <div>
+                {this.state.player2Map ?
+                    <h1>Opponent Connected</h1>
+                :
+                    <h1>Waiting for opponent</h1>
+                }
                 {this.state.currentTurn === this.props.player ?
                     <div>
+                        <input type="number" placeholder="enter number 1-100" onChange={this.handleChange}/>
                         <button onClick={this.makeMove}>make a move</button>
                         <div>Your Turn</div>
                     </div>

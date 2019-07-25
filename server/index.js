@@ -46,6 +46,7 @@ massive(CONNECTION_STRING).then(db => {
         })
 
         client.on('changeTurns', data => {
+            console.log(data)
             let { currentTurn, room } = data
             io.in(room).emit('turnsChanged', currentTurn)
         })
